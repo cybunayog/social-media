@@ -1,3 +1,4 @@
+
 const shortid = require('shortid');
 const db = require('./db');
 
@@ -5,6 +6,10 @@ const resolvers = {
   Status: {
     user: (status) => {
       return db.get('users').find({ _id: status.userId }).value();
+    },
+    isLiked: (status, args, context) => {
+      const currentLikes = db.get(`likes.${context.userId}`, {}).value();
+      return currentLikes[status._id] || false;
     }
   },
 
@@ -47,6 +52,19 @@ const resolvers = {
       db.get('feed').push(newStatus).write();
 
       return db.get('feed').find({ _id }).value();
+    },
+    likeStatus: (parent, args, context) => {
+      const key = `likes.${context.userId}`;
+      const currentLikes = db.get(key, {}).value();
+      const currentLikeStatus = currentLikes[args.statusId] || false;
+
+      // Likes
+      db.set(key, {
+        ...currentLikes,
+        [args.statusId]: !currentLikeStatus
+      }).write();
+
+      return db.get('feed').find({ _id: args.statusId }).value();
     }
   }
 };
