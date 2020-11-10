@@ -13,6 +13,18 @@ const resolvers = {
         .filter(o => o.parentStatusId === null || o.parentStatusId === undefined)
         .orderBy('publishedAt', 'desc')
         .value();
+    },
+
+
+    responses: (parent, args) => {
+      const originalStatus = db.get('feed').find({ _id: args._id }).value();
+
+      const responses = db.get('feed')
+        .filter({ parentStatusId: args._id })
+        .orderBy('publishedAt', 'desc')
+        .value();
+
+      return [originalStatus, ...responses];
     }
   }
 };
