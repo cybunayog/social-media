@@ -16,7 +16,8 @@ const resolvers = {
     },
 
 
-    responses: (parent, args) => {
+    responses: (parent, args, context) => {
+      console.log('context', context);
       const originalStatus = db.get('feed').find({ _id: args._id }).value();
 
       const responses = db.get('feed')
